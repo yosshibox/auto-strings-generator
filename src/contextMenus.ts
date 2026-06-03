@@ -4,7 +4,6 @@ export const GENERATE_FOUR_PART = "toplineStringArranger.generateFourPartStrings
 export const GENERATE_FOUR_PART_FROM_CLIP = "toplineStringArranger.generateFourPartStringsFromClip";
 export const GENERATE_COUNTER_SELECTION = "toplineStringArranger.generateCounterMelody";
 export const GENERATE_COUNTER_CLIP = "toplineStringArranger.generateCounterMelodyFromClip";
-export const CONVERT_NEGATIVE_HARMONY_CLIP = "toplineStringArranger.convertNegativeHarmonyFromClip";
 
 export const MENU_REGISTRATIONS = [
   ["MidiTrack.ArrangementSelection", "Generate 4-Part Strings", GENERATE_FOUR_PART],
@@ -13,6 +12,4 @@ export const MENU_REGISTRATIONS = [
   ["MidiTrack.ArrangementSelection", "Generate Counter Melody", GENERATE_COUNTER_SELECTION],
   ["MidiClip", "Generate Counter Melody From Clip", GENERATE_COUNTER_CLIP],
   ["ClipSlot", "Generate Counter Melody From Clip", GENERATE_COUNTER_CLIP],
-  ["MidiClip", "Negative Harmony", CONVERT_NEGATIVE_HARMONY_CLIP],
-  ["ClipSlot", "Negative Harmony", CONVERT_NEGATIVE_HARMONY_CLIP],
 ] as const satisfies readonly (readonly [ContextMenuScope<"1.0.0">, string, string])[];

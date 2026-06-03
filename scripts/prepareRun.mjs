@@ -18,7 +18,7 @@ writeFileSync(
     {
       name: "auto-strings-generator-run",
       version: "0.1.0",
-      type: "commonjs",
+      type: "module",
     },
     null,
     2,

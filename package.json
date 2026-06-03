@@ -4,7 +4,7 @@
   "type": "module",
   "main": "dist/extension.js",
   "scripts": {
-    "build": "tsc --noEmit && node build.mjs",
+    "build": "tsc --noEmit && tsx build.ts",
     "package": "npm run build && extensions-cli package . -o dist/auto-strings-generator.ablx",
     "prepare:run": "npm run build && node scripts/prepareRun.mjs",
     "run:live": "npm run prepare:run && extensions-cli run .ableton-run --live \"/Applications/Ableton Live 12 Beta.app/Contents/Helpers/ExtensionHost/ExtensionHostNodeModule.node\"",
