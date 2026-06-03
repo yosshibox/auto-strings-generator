@@ -11,6 +11,12 @@ export type DialogResult = DialogOptions & {
   chordTrackIndex: number;
 };
 
+export type NegativeHarmonyDialogResult = {
+  action: "convert";
+  tonicPitchClass: number;
+  keyName: string;
+};
+
 export const DEFAULT_DIALOG_OPTIONS: DialogOptions = {
   outputMode: "fourTracks",
   rhythmMode: "topRhythmFollow",

@@ -12,6 +12,7 @@ import {
   type Song,
 } from "@ableton-extensions/sdk";
 import {
+  CONVERT_NEGATIVE_HARMONY_CLIP,
   GENERATE_COUNTER_CLIP,
   GENERATE_COUNTER_SELECTION,
   GENERATE_FOUR_PART,
@@ -25,14 +26,22 @@ import { arrangementMidiNoteRange, readArrangementMidiNotes, readClipMidiNotes }
 import { selectedMidiTracks } from "./live/selection";
 import { writeFourTrackOutput } from "./live/writeMidi";
 import { groupChordEvents } from "./music/chordGrouping";
+import { applyNegativeHarmonyToNotes, inferNegativeHarmonyKeyCenter } from "./music/negativeHarmony";
 import { DEFAULT_COUNTER_MELODY_RANGE } from "./music/ranges";
 import { extractTopNotes } from "./music/topNotes";
-import type { DialogOptions } from "./music/types";
-import { showStringArrangerDialog } from "./ui/dialog";
+import type { DialogOptions, MidiNote } from "./music/types";
+import { showNegativeHarmonyDialog, showStringArrangerDialog } from "./ui/dialog";
 import { DEFAULT_DIALOG_OPTIONS } from "./ui/dialogTypes";
 
 function assertSelectionHasNotes(notes: unknown[], label: string): void {
   if (notes.length === 0) throw new Error(`${label} has no MIDI notes in the selected range.`);
+}
+
+function clipRelativeNotes(notes: MidiNote[], clipStartTime: number): MidiNote[] {
+  return notes.map((note) => ({
+    ...note,
+    startTime: Math.max(0, note.startTime - clipStartTime),
+  }));
 }
 
 function registerMenu(
@@ -191,5 +200,23 @@ export function activate(activation: ActivationContext) {
       outputClip.notes = counter.map((note) => ({ ...note, startTime: note.startTime - clip.startTime }));
       }),
     );
+  });
+
+  context.commands.registerCommand(CONVERT_NEGATIVE_HARMONY_CLIP, async (arg: unknown) => {
+    const clipHandle = arg as Handle;
+    const object = context.getObjectFromHandle(clipHandle, DataModelObject);
+    const clip = object instanceof MidiClip ? object : object instanceof ClipSlot && object.clip instanceof MidiClip ? object.clip : null;
+    if (!clip) throw new Error("Selected object is not a MIDI clip.");
+
+    const sourceNotes = readClipMidiNotes(clip);
+    assertSelectionHasNotes(sourceNotes, "Source MIDI Clip");
+    const inferredKeyCenter = inferNegativeHarmonyKeyCenter(sourceNotes, clip.startTime, clip.endTime);
+    const dialogResult = await showNegativeHarmonyDialog(context, inferredKeyCenter);
+    if (!dialogResult) return;
+
+    const converted = applyNegativeHarmonyToNotes(sourceNotes, dialogResult.tonicPitchClass);
+    await context.withinTransaction(() => {
+      clip.notes = clipRelativeNotes(converted, clip.startTime);
+    });
   });
 }

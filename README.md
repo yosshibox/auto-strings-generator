@@ -23,6 +23,17 @@ npm run build
 npm run package
 ```
 
+To run the extension in Live during development:
+
+```sh
+cd /Users/yosshi/Documents/Codex/automated_counterpart
+npm run run:live
+```
+
+`run:live` starts Ableton's Extension Host and keeps it running in the
+foreground. The terminal is expected to stay at the Extension Host log until
+you stop it with `Ctrl-C`.
+
 ## Usage
 
 1. Create MIDI tracks named exactly `autoStrings_top` and `autoStrings_chord`.
