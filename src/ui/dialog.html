@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+      }
+
+      body {
+        margin: 0;
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 18px;
+        font-weight: 650;
+        margin: 0 0 16px;
+      }
+
+      form {
+        display: grid;
+        gap: 10px;
+      }
+
+      label {
+        display: grid;
+        grid-template-columns: 145px minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+      }
+
+      select,
+      input {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .check {
+        grid-template-columns: 145px auto;
+        justify-content: start;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      button {
+        min-width: 88px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Auto Strings Generator</h1>
+    <form id="form">
+      <label>
+        Top Note Track
+        <select id="topTrackIndex"></select>
+      </label>
+      <label>
+        Chord Notes Track
+        <select id="chordTrackIndex"></select>
+      </label>
+      <label>
+        Output
+        <select id="outputMode">
+          <option value="fourTracks">4 tracks</option>
+          <option value="singleTrack" disabled>single track</option>
+        </select>
+      </label>
+      <label>
+        Rhythm Mode
+        <select id="rhythmMode">
+          <option value="topRhythmFollow">Top Rhythm Follow</option>
+          <option value="chordBlock">Chord Block</option>
+        </select>
+      </label>
+      <label>
+        Top Note Handling
+        <select id="topNoteHandling">
+          <option value="fixed">Fixed</option>
+          <option value="allowTension">Allow Tension</option>
+          <option value="snapToChord">Snap To Chord</option>
+        </select>
+      </label>
+      <label>
+        Bass Mode
+        <select id="bassMode">
+          <option value="originalBass">Original Bass</option>
+          <option value="rootBass">Root Bass</option>
+          <option value="smoothBass">Smooth Bass</option>
+        </select>
+      </label>
+      <label>
+        Inner Voice Mode
+        <select id="innerVoiceMode">
+          <option value="smooth">Smooth</option>
+          <option value="close">Close</option>
+          <option value="open">Open</option>
+        </select>
+      </label>
+      <label class="check">
+        Avoid Parallel 5/8
+        <input id="avoidParallelPerfects" type="checkbox" checked />
+      </label>
+      <label>
+        Legato Overlap Beats
+        <input id="legatoOverlapBeats" type="number" min="0" step="0.01" value="0" />
+      </label>
+      <label>
+        Velocity Humanize
+        <input id="velocityHumanize" type="number" min="0" max="32" step="1" value="0" />
+      </label>
+      <div class="actions">
+        <button type="submit">Generate</button>
+      </div>
+    </form>
+
+    <script>
+      const tracks = __TRACKS__;
+      const preferred = __PREFERRED__;
+
+      function sendToHost(result) {
+        const message = { method: "close_and_send", params: [JSON.stringify(result)] };
+        if (window.webkit?.messageHandlers?.live) {
+          window.webkit.messageHandlers.live.postMessage(message);
+          return;
+        }
+        if (window.chrome?.webview) {
+          window.chrome.webview.postMessage(message);
+        }
+      }
+
+      function fillTrackSelect(id, selectedIndex) {
+        const select = document.getElementById(id);
+        for (const track of tracks) {
+          const option = document.createElement("option");
+          option.value = String(track.index);
+          option.textContent = track.name;
+          select.appendChild(option);
+        }
+        select.value = String(selectedIndex);
+      }
+
+      fillTrackSelect("topTrackIndex", preferred.topTrackIndex ?? tracks[0]?.index ?? 0);
+      fillTrackSelect("chordTrackIndex", preferred.chordTrackIndex ?? tracks[1]?.index ?? tracks[0]?.index ?? 0);
+
+      document.getElementById("form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        sendToHost({
+          action: "generate",
+          topTrackIndex: Number(document.getElementById("topTrackIndex").value),
+          chordTrackIndex: Number(document.getElementById("chordTrackIndex").value),
+          outputMode: document.getElementById("outputMode").value,
+          rhythmMode: document.getElementById("rhythmMode").value,
+          topNoteHandling: document.getElementById("topNoteHandling").value,
+          bassMode: document.getElementById("bassMode").value,
+          innerVoiceMode: document.getElementById("innerVoiceMode").value,
+          avoidParallelPerfects: document.getElementById("avoidParallelPerfects").checked,
+          legatoOverlapBeats: Number(document.getElementById("legatoOverlapBeats").value),
+          velocityHumanize: Number(document.getElementById("velocityHumanize").value),
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+dist/
+.ableton-run/
+generated/
+codex_string_arranger_package/
+vendor/*.tgz
+*.png
