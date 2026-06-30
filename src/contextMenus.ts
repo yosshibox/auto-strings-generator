@@ -8,8 +8,4 @@ export const GENERATE_COUNTER_CLIP = "toplineStringArranger.generateCounterMelod
 export const MENU_REGISTRATIONS = [
   ["MidiTrack.ArrangementSelection", "Generate 4-Part Strings", GENERATE_FOUR_PART],
   ["MidiClip", "Generate 4-Part Strings", GENERATE_FOUR_PART_FROM_CLIP],
-  ["ClipSlot", "Generate 4-Part Strings", GENERATE_FOUR_PART_FROM_CLIP],
-  ["MidiTrack.ArrangementSelection", "Generate Counter Melody", GENERATE_COUNTER_SELECTION],
-  ["MidiClip", "Generate Counter Melody From Clip", GENERATE_COUNTER_CLIP],
-  ["ClipSlot", "Generate Counter Melody From Clip", GENERATE_COUNTER_CLIP],
 ] as const satisfies readonly (readonly [ContextMenuScope<"1.0.0">, string, string])[];

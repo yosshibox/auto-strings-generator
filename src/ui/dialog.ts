@@ -8,6 +8,7 @@ export async function showStringArrangerDialog(
   preferred?: {
     topTrackIndex?: number;
     chordTrackIndex?: number;
+    sourceMode?: DialogResult["sourceMode"];
   },
 ): Promise<DialogResult | null> {
   const html = modalInterface

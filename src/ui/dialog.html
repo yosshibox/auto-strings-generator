@@ -60,10 +60,17 @@
     <h1>Auto Strings Generator</h1>
     <form id="form">
       <label>
+        Input Mode
+        <select id="sourceMode">
+          <option value="splitExistingVoicing">Split existing 4-voice clip</option>
+          <option value="generateFromTopAndChord">Generate from top + chord tracks</option>
+        </select>
+      </label>
+      <label class="track-choice">
         Top Note Track
         <select id="topTrackIndex"></select>
       </label>
-      <label>
+      <label class="track-choice">
         Chord Notes Track
         <select id="chordTrackIndex"></select>
       </label>
@@ -71,7 +78,7 @@
         Output
         <select id="outputMode">
           <option value="fourTracks">4 tracks</option>
-          <option value="singleTrack" disabled>single track</option>
+          <option value="singleTrack">single track</option>
         </select>
       </label>
       <label>
@@ -150,11 +157,23 @@
 
       fillTrackSelect("topTrackIndex", preferred.topTrackIndex ?? tracks[0]?.index ?? 0);
       fillTrackSelect("chordTrackIndex", preferred.chordTrackIndex ?? tracks[1]?.index ?? tracks[0]?.index ?? 0);
+      document.getElementById("sourceMode").value = preferred.sourceMode ?? "generateFromTopAndChord";
+
+      function syncModeVisibility() {
+        const sourceMode = document.getElementById("sourceMode").value;
+        for (const element of document.querySelectorAll(".track-choice")) {
+          element.style.display = sourceMode === "splitExistingVoicing" ? "none" : "";
+        }
+      }
+
+      document.getElementById("sourceMode").addEventListener("change", syncModeVisibility);
+      syncModeVisibility();
 
       document.getElementById("form").addEventListener("submit", (event) => {
         event.preventDefault();
         sendToHost({
           action: "generate",
+          sourceMode: document.getElementById("sourceMode").value,
           topTrackIndex: Number(document.getElementById("topTrackIndex").value),
           chordTrackIndex: Number(document.getElementById("chordTrackIndex").value),
           outputMode: document.getElementById("outputMode").value,

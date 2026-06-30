@@ -46,6 +46,7 @@ export type Voicing = {
 };
 
 export type OutputMode = "fourTracks" | "singleTrack";
+export type SourceMode = "splitExistingVoicing" | "generateFromTopAndChord";
 export type RhythmMode = "topRhythmFollow" | "chordBlock";
 export type TopNoteHandling = "fixed" | "allowTension" | "snapToChord";
 export type BassMode = "originalBass" | "rootBass" | "smoothBass";
@@ -69,6 +70,7 @@ export type CounterMelodyOptions = {
 export type VoiceOutput = Record<VoiceName, MidiNote[]>;
 
 export type DialogOptions = StringArrangementOptions & {
+  sourceMode: SourceMode;
   outputMode: OutputMode;
   innerVoiceMode: InnerVoiceMode;
 };

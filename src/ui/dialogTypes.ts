@@ -12,6 +12,7 @@ export type DialogResult = DialogOptions & {
 };
 
 export const DEFAULT_DIALOG_OPTIONS: DialogOptions = {
+  sourceMode: "generateFromTopAndChord",
   outputMode: "fourTracks",
   rhythmMode: "topRhythmFollow",
   topNoteHandling: "fixed",

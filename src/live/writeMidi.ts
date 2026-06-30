@@ -1,6 +1,6 @@
 import type { MidiTrack, Song } from "@ableton-extensions/sdk";
 import type { ExtensionContext } from "@ableton-extensions/sdk";
-import type { MidiNote, VoiceOutput } from "../music/types";
+import type { MidiNote, OutputMode, VoiceOutput } from "../music/types";
 
 function toClipRelativeNotes(notes: MidiNote[], clipStart: number): MidiNote[] {
   return notes
@@ -23,16 +23,37 @@ async function createNamedTrack(song: Song<"1.0.0">, name: string): Promise<Midi
   return track;
 }
 
-export async function writeFourTrackOutput(
+function combinedVoiceNotes(output: VoiceOutput, clipStart: number): MidiNote[] {
+  return [
+    ...toClipRelativeNotes(output.violin1, clipStart),
+    ...toClipRelativeNotes(output.violin2, clipStart),
+    ...toClipRelativeNotes(output.viola, clipStart),
+    ...toClipRelativeNotes(output.cello, clipStart),
+  ].sort((a, b) => a.startTime - b.startTime || b.pitch - a.pitch);
+}
+
+export async function writeVoiceOutput(
   context: ExtensionContext<"1.0.0">,
   song: Song<"1.0.0">,
   output: VoiceOutput,
   startTime: number,
   endTime: number,
+  outputMode: OutputMode,
 ): Promise<void> {
   const clipEndTime = outputEndTime(output, endTime);
   const duration = clipEndTime - startTime;
   if (duration <= 0) throw new Error("Selection duration must be greater than zero.");
+
+  if (outputMode === "singleTrack") {
+    await context.withinTransaction(() =>
+      createNamedTrack(song, "Generated Strings").then((track) =>
+        track.createMidiClip(startTime, duration).then((clip) => {
+          clip.notes = combinedVoiceNotes(output, startTime);
+        }),
+      ),
+    );
+    return;
+  }
 
   await context.withinTransaction(() =>
     Promise.all([
@@ -54,4 +75,14 @@ export async function writeFourTrackOutput(
       clips[3]!.notes = toClipRelativeNotes(output.cello, startTime);
     }),
   );
+}
+
+export async function writeFourTrackOutput(
+  context: ExtensionContext<"1.0.0">,
+  song: Song<"1.0.0">,
+  output: VoiceOutput,
+  startTime: number,
+  endTime: number,
+): Promise<void> {
+  await writeVoiceOutput(context, song, output, startTime, endTime, "fourTracks");
 }
